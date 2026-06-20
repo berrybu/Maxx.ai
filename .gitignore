@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+graph_store.json
+outbox.json
+.venv/
+file.jpe
+*.log

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maxx — Automotive Parts Sales OS</title>
+  <link rel="stylesheet" href="/static/style.css?v=13" />
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">Maxx</span>
+      <span class="brand-sep"></span>
+      <span class="brand-tag">Turn your network into revenue. Maximized.</span>
+    </div>
+    <nav class="view-switch">
+      <button class="view-tab active" data-view="graph">🕸 Knowledge graph</button>
+      <button class="view-tab" data-view="pipeline">📊 Pipeline</button>
+    </nav>
+    <div class="topbar-status">
+      <span class="graph-stat">Graph <strong id="node-count">0</strong> nodes · <strong id="edge-count">0</strong> edges</span>
+      <span id="cala-badge" class="badge">Cala: --</span>
+      <span class="topbar-sep"></span>
+      <div class="user-chip" id="user-chip" title="Signed in as Tianhao Gu">
+        <span class="user-avatar">TG</span>
+        <span class="user-name">Tianhao Gu</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage" id="view-graph">
+    <section class="panel-left">
+      <div class="graph-area">
+        <div id="cy"></div>
+        <div class="graph-legend">
+          <span class="leg-item"><i class="leg-dot person"></i>Person</span>
+          <span class="leg-item"><i class="leg-dot company"></i>Company</span>
+          <span class="leg-item"><i class="leg-dot us-company"></i>Our company</span>
+          <span class="leg-item"><i class="leg-dot rep"></i>Sales rep (me)</span>
+          <span class="leg-item"><i class="leg-dot thread"></i>Email thread</span>
+          <span class="leg-item"><i class="leg-line confirmed"></i>Confirmed</span>
+          <span class="leg-item"><i class="leg-line proposed"></i>Pending</span>
+        </div>
+        <aside class="detail-panel" id="detail-panel" hidden>
+          <button class="detail-close" id="detail-close">&times;</button>
+          <div id="detail-content"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="panel-right">
+      <div class="tabs">
+        <button class="tab active" data-tab="scan">Scan card</button>
+        <button class="tab" data-tab="target">Smart prospecting</button>
+        <button class="tab" data-tab="sessions">Sessions <span id="sessions-badge" class="pill">0</span></button>
+      </div>
+
+      <div class="right-scroll" id="right-scroll">
+        <div class="tab-pane active" id="pane-scan">
+          <p class="hint">Scan card → extract → write to CRM graph → <b>Cala ripple expansion</b> of background.</p>
+          <div class="row">
+            <select id="card-select"></select>
+          </div>
+          <div class="row upload-row">
+            <label class="file-btn">📷 Upload card image (real OCR)
+              <input type="file" id="card-file" accept="image/*" hidden />
+            </label>
+            <span id="file-name" class="meta"></span>
+          </div>
+          <img id="card-preview" class="card-preview" hidden />
+          <button class="btn btn-primary" id="scan-btn">Scan and expand</button>
+          <div class="activity-stream" id="activity-stream" hidden>
+            <div class="stream-header" id="stream-header"><span class="stream-pulse"></span> Cala Agent activity</div>
+            <div class="stream-items" id="stream-items"></div>
+          </div>
+          <div id="scan-result"></div>
+        </div>
+
+        <div class="tab-pane" id="pane-target">
+          <p class="hint">Three-step prospecting: <b>1. Prospect</b> ask only Cala to find new companies · <b>2. Filter</b> query only our own CRM network (incl. <b>warm leads</b>: past-deal contacts who changed jobs) · <b>3. Write</b> use product-manual RAG to generate a personalized email (mock send).</p>
+          <textarea id="target-text" rows="3">Among the contacts we've closed deals with, who has since moved to a car company we haven't won yet?</textarea>
+          <div class="row">
+            <button class="btn btn-primary" id="scout-btn">1. Prospect (Cala)</button>
+            <button class="btn btn-primary" id="filter-btn">2. Filter (CRM)</button>
+          </div>
+          <div id="target-result"></div>
+        </div>
+
+
+        <div class="tab-pane" id="pane-sessions">
+          <p class="hint">A <b>session</b> is created once a cold email is sent. When a customer replies, the Agent <b>auto-drafts</b> the next reply, but it is <b>sent only after human confirmation</b>. Click "📥 Simulate incoming reply" to test auto-reply.</p>
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn btn-mini" id="clear-sessions-btn" onclick="clearSessions()">🗑 Clear all sessions</button>
+          </div>
+          <div id="sessions-list"></div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <section class="pipeline-view" id="view-pipeline" hidden>
+    <aside class="ats">
+      <div class="ats-ws">
+        <span class="ats-ws-logo">M</span>
+        <span class="ats-ws-name">Maxx</span>
+        <span class="ats-ws-cv">&#9662;</span>
+      </div>
+      <div class="ats-search"><span class="ats-search-ic">&#9906;</span><span>Search&hellip;</span><span class="ats-kbd">&#8984;K</span></div>
+      <nav class="ats-nav">
+        <div class="ats-sec">Records</div>
+        <a class="ats-item"><span class="ats-ic">&#9634;</span>Companies</a>
+        <a class="ats-item"><span class="ats-ic">&#9678;</span>People</a>
+        <a class="ats-item active"><span class="ats-ic">&#9670;</span>Deals</a>
+        <div class="ats-sec">Lists</div>
+        <a class="ats-item"><span class="ats-ic">&#9638;</span>Sales pipeline</a>
+        <a class="ats-item"><span class="ats-ic">&#9733;</span>Key accounts</a>
+        <a class="ats-item"><span class="ats-ic">&#9788;</span>Warm leads</a>
+        <div class="ats-sec">Workspace</div>
+        <a class="ats-item"><span class="ats-ic">&#9645;</span>Reports</a>
+        <a class="ats-item"><span class="ats-ic">&#9881;</span>Settings</a>
+      </nav>
+      <div class="ats-user">
+        <span class="ats-user-av">TG</span>
+        <div class="ats-user-meta"><strong>Tianhao Gu</strong><span>Maxx Components</span></div>
+      </div>
+    </aside>
+    <div class="atm">
+      <div class="atm-head">
+        <div class="atm-title"><span class="atm-title-ic">&#9670;</span>Deals</div>
+        <div class="atm-objtabs">
+          <button class="objtab active">Sales</button>
+          <button class="objtab">Companies</button>
+        </div>
+        <div class="atm-head-right">
+          <button class="pipe-chip pipe-chip-static">Share</button>
+          <button class="pipe-chip pipe-add">+ New</button>
+        </div>
+      </div>
+      <div class="pipe-toolbar">
+        <div class="pipe-left">
+          <span class="pipe-view-name"><span class="ci">&#9638;</span>All deals <em class="pipe-total" id="pipe-total">0</em></span>
+          <span class="tb-sep"></span>
+          <div class="pipe-chip-wrap">
+            <button class="pipe-chip" id="pipe-filter-btn"><span class="ci">&#9881;</span>Filter <span class="pipe-count" id="pipe-filter-count" hidden>0</span></button>
+            <div class="pipe-menu" id="pipe-filter-menu" hidden></div>
+          </div>
+          <div class="pipe-chip-wrap">
+            <button class="pipe-chip" id="pipe-sort-btn"><span class="ci">&#8645;</span>Sort</button>
+            <div class="pipe-menu" id="pipe-sort-menu" hidden></div>
+          </div>
+          <button class="pipe-chip pipe-chip-static"><span class="ci">&#9906;</span>Search</button>
+        </div>
+        <div class="pipe-right">
+          <button class="pipe-chip pipe-icon-only" id="pipe-refresh-btn" title="Refresh">&#8635;</button>
+          <button class="pipe-chip pipe-chip-static pipe-icon-only" title="View settings">&#9881;</button>
+          <button class="pipe-chip pipe-chip-static">&#10515; Export</button>
+        </div>
+      </div>
+      <div class="pipe-table-wrap">
+        <table class="pipe-table">
+          <thead>
+            <tr>
+              <th class="col-check"></th>
+              <th class="col-company"><span class="th-ic">&#9678;</span>Company</th>
+              <th class="col-stage"><span class="th-ic">&#9662;</span>Stage</th>
+              <th class="col-next"><span class="th-ic">&#9695;</span>Next step</th>
+              <th class="col-arr"><span class="th-ic">#</span>Estimated value</th>
+              <th class="col-conn"><span class="th-ic">&#9776;</span>Connection strength</th>
+              <th class="col-contact"><span class="th-ic">&#9678;</span>Contact</th>
+              <th class="col-add">+</th>
+            </tr>
+          </thead>
+          <tbody id="pipe-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" hidden></div>
+  <!-- Email composer modal -->
+  <div class="mail-overlay" id="mail-overlay" hidden>
+    <div class="mail-modal" id="mail-modal">
+      <div class="mail-modal-head">
+        <div class="mail-stamp">✉</div>
+        <div class="mail-head-text">
+          <div class="mail-head-title">Cold email</div>
+          <div class="mail-head-to" id="mail-to">To —</div>
+        </div>
+        <button class="mail-close" id="mail-close" title="Close">&times;</button>
+      </div>
+      <div class="mail-modal-body">
+        <label class="mail-field-label">Subject</label>
+        <input class="mail-subject" id="mail-subject" placeholder="Subject" />
+        <label class="mail-field-label">Message</label>
+        <textarea class="mail-body" id="mail-body" rows="14" placeholder="Your message…"></textarea>
+        <div class="mail-meta" id="mail-meta"></div>
+      </div>
+      <div class="mail-modal-foot">
+        <button class="btn" id="mail-cancel">Cancel</button>
+        <button class="btn btn-primary mail-send" id="mail-send"><span class="mail-send-label">Send</span></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js?v=13"></script>
+</body>
+</html>
