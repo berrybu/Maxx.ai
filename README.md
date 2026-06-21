@@ -19,31 +19,7 @@ Maxx.ai features an autonomous background agent that constantly monitors global 
 - Proposes precise mathematical adjustments to the pricing indices.
 - Waits for **Human Authorization** before securely updating global pricing, preventing unilateral AI actions while protecting margins.
 
----
 
-## 🏗️ System Architecture & Workflow
-
-```mermaid
-graph TD
-    %% Styling
-    classDef ai fill:#f3f4f6,stroke:#3b82f6,stroke-width:2px,color:#1f2937
-    classDef human fill:#fee2e2,stroke:#ef4444,stroke-width:2px,color:#991b1b
-    classDef engine fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#065f46
-    
-    %% Email Flow
-    Customer[📥 Customer Email Request] -->|Extracted by| Agent(🤖 AI Sales Agent):::ai
-    Agent -->|Tool Calling: Specs| PricingEngine{⚙️ Deterministic Pricing Engine}:::engine
-    
-    %% Market Flow
-    News[📰 Global Market News] -->|Monitored 24/7| Scout(🕵️ Supply Chain Scout AI):::ai
-    Scout -->|Detects Crisis| Alert[📱 Telegram Alert]
-    Alert -->|Manager Approves| HITL(👤 Human-in-the-Loop):::human
-    HITL -->|Updates Global Rates| PricingEngine
-    
-    %% Output Flow
-    PricingEngine -->|Returns Exact Quote| Agent
-    Agent -->|Drafts precise reply| Reply[📤 Professional Quote Reply]
-```
 
 ## 🚀 Getting Started
 
