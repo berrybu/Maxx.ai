@@ -19,7 +19,46 @@ Maxx.ai features an autonomous background agent that constantly monitors global 
 - Proposes precise mathematical adjustments to the pricing indices.
 - Waits for **Human Authorization** before securely updating global pricing, preventing unilateral AI actions while protecting margins.
 
+---
 
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+    %% Top Level Inputs
+    NC["name card"] --> Input["Input"]
+    Q["query"] --> Input
+    
+    %% Knowledge Base
+    Input --> KG["Knowledge Graph"]
+    
+    %% Agents
+    KG -->|RAG for<br>Product info| EA{"Email Agent"}
+    
+    %% Left Branch: Email Processing
+    EA --> EC["Email from<br>Customer"]
+    EC -->|Extract<br>Specs| PE(("Price Engine"))
+    
+    %% Right Branch: Market Scout
+    SCM{"Supply Chain<br>Monitor"} ===> PE
+    SCM -.->|alert| TG["Telegram"]
+    
+    %% Final Output
+    PE ===>|Calculate<br>Price| RE["Reply Email"]
+    
+    %% Beautiful Styling (matching the dark aesthetic)
+    classDef darkBox fill:#1e1e1e,stroke:#aaaaaa,stroke-width:1px,color:#ffffff,rx:6,ry:6
+    classDef inputNode fill:none,stroke:none,color:#ffffff
+    classDef diamondNode fill:#3b00ff,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    classDef pinkCircle fill:#ff007f,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    classDef whiteBox fill:#ffffff,stroke:#333333,stroke-width:2px,color:#000000,rx:6,ry:6
+    
+    class Input,KG,EC,RE darkBox
+    class NC,Q inputNode
+    class EA,SCM diamondNode
+    class PE pinkCircle
+    class TG whiteBox
+```
 
 ## 🚀 Getting Started
 
